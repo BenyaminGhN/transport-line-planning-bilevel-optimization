@@ -247,9 +247,9 @@ __marimo__/
 logs/
 !logs/.gitkeep 
 
-# data
-data/
-!data/.gitkeep 
+# # data
+# data/
+# !data/.gitkeep 
 
 # demo
 demo/
