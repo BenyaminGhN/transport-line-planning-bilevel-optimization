@@ -26,11 +26,11 @@ class Line:
     @property
     def segments(self) -> tuple[tuple[int, int], ...]:
         """Output: ((u, v), ...) directed arcs of the line, length len(stops)-1."""
-        raise NotImplementedError
+        return tuple(zip(self.stops[:-1], self.stops[1:]))
 
     def segment_capacity(self, horizon: float) -> float:
         """Input: H. Output: kappa_l * f_l * H (passengers per segment over the horizon)."""
-        raise NotImplementedError
+        return self.vehicle_capacity * self.frequency * horizon
 
 
 @dataclass(frozen=True)
@@ -44,7 +44,7 @@ class Route:
     @property
     def lines(self) -> frozenset[int]:
         """Output: L(r), the set of line ids used by this route."""
-        raise NotImplementedError
+        return frozenset(line_id for line_id, _ in self.legs)
 
 
 @dataclass
@@ -77,16 +77,86 @@ class Instance:
     c_pass_ref: float | None = None
 
     @property
-    def n_lines(self) -> int: raise NotImplementedError
+    def n_lines(self) -> int: return len(self.lines)
     @property
-    def n_routes(self) -> int: raise NotImplementedError
+    def n_routes(self) -> int: return len(self.routes)
     @property
-    def n_od(self) -> int: raise NotImplementedError
+    def n_od(self) -> int: return len(self.od)
 
     def build(self) -> None:
         """Input: lines + routes already set. Output: None (fills all derived arrays above)."""
-        raise NotImplementedError
+        if not np.isfinite(self.horizon) or self.horizon <= 0:
+            raise ValueError("horizon must be finite and positive")
+        line_ids = [line.id for line in self.lines]
+        od_ids = list(self.od["k"])
+        if len(set(line_ids)) != len(line_ids) or len(set(od_ids)) != len(od_ids):
+            raise ValueError("Line and OD IDs must be unique")
+        if len({route.id for route in self.routes}) != self.n_routes:
+            raise ValueError("Route IDs must be unique")
+        line_pos = {key: i for i, key in enumerate(line_ids)}
+        od_pos = {key: i for i, key in enumerate(od_ids)}
+        self.demand = self.od["demand"].to_numpy(dtype=float)
+        if np.any(~np.isfinite(self.demand)) or np.any(self.demand < 0):
+            raise ValueError("Demand must be finite and nonnegative")
+        self.seg_index = {}
+        owners, capacities = [], []
+        for i, line in enumerate(self.lines):
+            if len(line.stops) < 2 or len(line.segment_times) != len(line.stops) - 1:
+                raise ValueError("Each line needs stops and matching segment times")
+            values = np.asarray([
+                *line.segment_times, line.cost, line.frequency, line.vehicle_capacity, line.fleet
+            ], dtype=float)
+            if np.any(~np.isfinite(values)) or np.any(values < 0):
+                raise ValueError("Line times and parameters must be finite and nonnegative")
+            for s in range(len(line.segments)):
+                self.seg_index[line.id, s] = len(owners)
+                owners.append(i)
+                capacities.append(line.segment_capacity(self.horizon))
+        self.seg_line = np.asarray(owners, dtype=int)
+        self.seg_capacity = np.asarray(capacities, dtype=float)
+        cap_rows, cap_cols, line_rows, line_cols, route_od = [], [], [], [], []
+        for j, route in enumerate(self.routes):
+            if route.od_index not in od_pos:
+                raise ValueError("Route references an unknown OD ID")
+            k = od_pos[route.od_index]
+            if not route.legs or len(set(route.legs)) != len(route.legs):
+                raise ValueError("Routes must be nonempty and cannot repeat a line segment")
+            current = self.od.iloc[k]["origin"]
+            travel_time = 0.0
+            for line_id, s in route.legs:
+                if (line_id, s) not in self.seg_index:
+                    raise ValueError("Route references an unknown line segment")
+                line = self.lines[line_pos[line_id]]
+                start, end = line.segments[s]
+                if start != current:
+                    raise ValueError("Route legs must form a connected path from the OD origin")
+                current = end
+                travel_time += line.segment_times[s]
+                cap_rows.append(self.seg_index[line_id, s])
+                cap_cols.append(j)
+            if current != self.od.iloc[k]["dest"]:
+                raise ValueError("Route must end at the OD destination")
+            if not np.isfinite(route.cost) or route.cost < 0 or not np.isclose(route.cost, travel_time):
+                raise ValueError("Route cost must equal its total in-vehicle time")
+            for line_id in sorted(route.lines):
+                line_rows.append(j)
+                line_cols.append(line_pos[line_id])
+            route_od.append(k)
+        self.route_od = np.asarray(route_od, dtype=int)
+        self.route_cost = np.asarray([route.cost for route in self.routes], dtype=float)
+        self.A_cap = sp.csr_matrix((np.ones(len(cap_rows)), (cap_rows, cap_cols)),
+                                   shape=(len(owners), self.n_routes))
+        self.A_od = sp.csr_matrix((np.ones(self.n_routes), (self.route_od, np.arange(self.n_routes))),
+                                  shape=(self.n_od, self.n_routes))
+        self.R_lines = sp.csr_matrix((np.ones(len(line_rows)), (line_rows, line_cols)),
+                                     shape=(self.n_routes, self.n_lines))
+        self.line_cost = np.asarray([line.cost for line in self.lines], dtype=float)
+        self.line_fleet = np.asarray([line.fleet for line in self.lines], dtype=float)
 
     def set_references(self, c_op_ref: float, c_pass_ref: float) -> None:
         """Fix the normalisation constants (constant across all plans)."""
-        raise NotImplementedError
+        values = np.asarray([c_op_ref, c_pass_ref], dtype=float)
+        if np.any(~np.isfinite(values)) or np.any(values <= 0):
+            raise ValueError("reference values must be finite and positive")
+        self.c_op_ref = float(c_op_ref)
+        self.c_pass_ref = float(c_pass_ref)
