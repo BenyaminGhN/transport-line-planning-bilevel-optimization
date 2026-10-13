@@ -110,6 +110,6 @@ Run the full suite and display reasons for skipped tests:
 python -m pytest -q -rs
 ```
 
-The last full-suite verification reported `29 passed, 17 skipped`. Existing
+The last full-suite verification reported `31 passed, 17 skipped`. Existing
 placeholder tests use `pytest.skip()`; skipped tests do not validate the
 corresponding functionality. Counts will change as implementation progresses.

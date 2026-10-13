@@ -177,7 +177,18 @@ Test every currently implemented component:
 python -m pytest tests\test_assignment_penalty.py tests\test_lines_routes.py tests\test_evaluator_exact.py tests\test_ga_implemented.py -v --basetemp .pytest-tmp
 ```
 
-The current implemented suite reports `29 passed`. Running the entire project
+Run the end-to-end example:
+
+```powershell
+python -m scripts.run_line_planning
+```
+
+The example builds a small network in memory, generates two candidate lines and
+their OD routes, evaluates all four binary plans, runs the genetic algorithm,
+and prints the GA gap to the exact optimum. It does not require files under
+`data/`.
+
+The current implemented suite reports `31 passed`. Running the entire project
 suite additionally reports 17 skipped placeholder tests from the original
 scaffold.
 
