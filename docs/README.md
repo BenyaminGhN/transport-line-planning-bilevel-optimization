@@ -3,6 +3,11 @@
 This guide covers Windows PowerShell, macOS, and Linux. Run project commands
 from the repository root (the directory containing `pyproject.toml`).
 
+Related documentation:
+
+- [Passenger-assignment model](passenger_assignment.md)
+- [Line planning and solution search](line_planning.md)
+
 ## Prerequisites
 
 - Python 3.10 or newer, with `pip` and `venv` available.
@@ -30,19 +35,6 @@ If `python` is not available but the Windows Python launcher is installed,
 use `py -3 --version` and `py -3 -m venv .venv` for the first two commands.
 Check that the selected version meets the requirement above.
 
-### macOS / Linux (bash or zsh)
-
-```sh
-python3 --version
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
-```
-
-If your Linux installation reports that `venv` or `ensurepip` is missing,
-install the virtual-environment support package for your Python version using
-your distribution's package manager, then retry environment creation.
-
 ### Verify the installation
 
 With the environment activated, run:
@@ -57,30 +49,6 @@ should point to `src/ptlp/__init__.py` in your checkout.
 `pip install -e .` installs the project in editable mode, together with its
 declared dependencies. Source edits are available on the next run without
 reinstalling. Run the installation command again if dependencies change.
-
-### Running without activation
-
-Activation is optional. If PowerShell blocks `Activate.ps1`, or you prefer to
-choose the interpreter explicitly, use these commands from the repository root:
-
-Windows:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -e .
-.\.venv\Scripts\python.exe -m scripts.run_assignment
-.\.venv\Scripts\python.exe -m pytest tests/test_assignment_penalty.py -q
-```
-
-macOS / Linux:
-
-```sh
-./.venv/bin/python -m pip install -e .
-./.venv/bin/python -m scripts.run_assignment
-./.venv/bin/python -m pytest tests/test_assignment_penalty.py -q
-```
-
-The remaining sections assume the environment is activated. Otherwise, replace
-`python` with the appropriate environment interpreter shown above.
 
 ## 2. Run the passenger-assignment example
 
@@ -141,6 +109,6 @@ Run the full suite and display reasons for skipped tests:
 python -m pytest -q -rs
 ```
 
-The last full-suite verification reported `15 passed, 17 skipped`. Existing
+The last full-suite verification reported `31 passed, 17 skipped`. Existing
 placeholder tests use `pytest.skip()`; skipped tests do not validate the
 corresponding functionality. Counts will change as implementation progresses.

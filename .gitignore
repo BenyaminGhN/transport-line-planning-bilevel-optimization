@@ -253,4 +253,9 @@ logs/
 
 # demo
 demo/
-!demo/.gitkeep 
+!demo/.gitkeep
+
+# Local Codex development environment and test artifacts
+.venv-codex/
+.uv-cache/
+.pytest-tmp*/

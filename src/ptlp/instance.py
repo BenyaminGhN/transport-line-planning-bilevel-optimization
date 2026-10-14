@@ -103,9 +103,11 @@ class Instance:
         for i, line in enumerate(self.lines):
             if len(line.stops) < 2 or len(line.segment_times) != len(line.stops) - 1:
                 raise ValueError("Each line needs stops and matching segment times")
-            values = np.asarray([*line.segment_times, line.frequency, line.vehicle_capacity], dtype=float)
+            values = np.asarray([
+                *line.segment_times, line.cost, line.frequency, line.vehicle_capacity, line.fleet
+            ], dtype=float)
             if np.any(~np.isfinite(values)) or np.any(values < 0):
-                raise ValueError("Line times, frequency and vehicle capacity must be finite and nonnegative")
+                raise ValueError("Line times and parameters must be finite and nonnegative")
             for s in range(len(line.segments)):
                 self.seg_index[line.id, s] = len(owners)
                 owners.append(i)
@@ -153,4 +155,8 @@ class Instance:
 
     def set_references(self, c_op_ref: float, c_pass_ref: float) -> None:
         """Fix the normalisation constants (constant across all plans)."""
-        raise NotImplementedError
+        values = np.asarray([c_op_ref, c_pass_ref], dtype=float)
+        if np.any(~np.isfinite(values)) or np.any(values <= 0):
+            raise ValueError("reference values must be finite and positive")
+        self.c_op_ref = float(c_op_ref)
+        self.c_pass_ref = float(c_pass_ref)
