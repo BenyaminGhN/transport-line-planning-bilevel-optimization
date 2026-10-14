@@ -260,5 +260,6 @@ demo/
 .uv-cache/
 .pytest-tmp*/
 
-# data
+# results
 results/
+
