@@ -15,7 +15,9 @@ class GAConfig:
     pop_size: int = 40
     n_generations: int = 60
     crossover_rate: float = 0.9
-    mutation_rate: float = 0.02      # per bit
+    # >>> CHANGED: None = 1.5 / n_lines (on average 1.5 flipped lines per child, whatever the network size).
+    # A fixed 0.02 flips almost nothing when there are only 10 lines. <<<
+    mutation_rate: float | None = None   # per bit
     tournament_k: int = 3
     elitism: int = 2
     seed: int = 0
@@ -35,8 +37,9 @@ class GenerationRecord:
     best_fitness: float
     best_result: EvaluationResult    # includes flows -> network plot without re-solving
     diversity: float                 # mean pairwise Hamming distance / n_lines
-    n_lp_solves: int                 # cumulative
+    n_lp_solves: int                 # cumulative, counted from the start of THIS run
     elapsed_s: float
+    served_fraction: np.ndarray | None = None   # >>> NEW: (pop,) share of demand served (nan if infeasible) <<<
 
 
 @dataclass
@@ -44,6 +47,7 @@ class GAResult:
     best: EvaluationResult
     history: list[GenerationRecord] = field(default_factory=list)
     runtime_s: float = 0.0
+    n_lp_solves: int = 0              # >>> NEW: LPs solved by this run <<<
 
 
 Callback = Callable[[GenerationRecord], None]
@@ -57,7 +61,8 @@ class GeneticAlgorithm:
             raise ValueError("pop_size must be at least 2")
         if config.n_generations < 1:
             raise ValueError("n_generations must be positive")
-        if not 0 <= config.crossover_rate <= 1 or not 0 <= config.mutation_rate <= 1:
+        if (not 0 <= config.crossover_rate <= 1
+                or (config.mutation_rate is not None and not 0 <= config.mutation_rate <= 1)):  # >>> CHANGED <<<
             raise ValueError("crossover_rate and mutation_rate must lie in [0, 1]")
         if not 1 <= config.tournament_k <= config.pop_size:
             raise ValueError("tournament_k must lie between 1 and pop_size")
@@ -72,6 +77,10 @@ class GeneticAlgorithm:
         self._best_result: EvaluationResult | None = None
         self._best_fitness = np.inf
         self._started_at = 0.0
+        self._solves_at_start = 0   # >>> NEW <<<
+        n_lines = max(evaluator.instance.n_lines, 1)
+        self.mutation_rate = (config.mutation_rate if config.mutation_rate is not None
+                              else min(1.0, 1.5 / n_lines))   # >>> NEW: the rate really used <<<
 
     def run(self) -> GAResult:
         """Output: GAResult (best plan + full history)."""
@@ -79,6 +88,7 @@ class GeneticAlgorithm:
         self._best_result = None
         self._best_fitness = np.inf
         self._started_at = perf_counter()
+        self._solves_at_start = self.evaluator.n_lp_solves   # >>> NEW <<<
         history: list[GenerationRecord] = []
         population = self._init_population()
         generations_without_improvement = 0
@@ -117,7 +127,8 @@ class GeneticAlgorithm:
 
         if self._best_result is None:
             raise RuntimeError("genetic algorithm did not evaluate a population")
-        return GAResult(self._best_result, history, perf_counter() - self._started_at)
+        return GAResult(self._best_result, history, perf_counter() - self._started_at,
+                        self.evaluator.n_lp_solves - self._solves_at_start)
 
     def _init_population(self) -> np.ndarray:
         """Output (pop, n_lines). Random bits, ideally biased to pass budget/fleet."""
@@ -165,7 +176,7 @@ class GeneticAlgorithm:
 
     def _mutate(self, x: np.ndarray) -> np.ndarray:
         x = x.copy()
-        flips = self.rng.random(len(x)) < self.config.mutation_rate
+        flips = self.rng.random(len(x)) < self.mutation_rate
         x[flips] = 1 - x[flips]
         return x
 
@@ -180,10 +191,10 @@ class GeneticAlgorithm:
 
         feasible = np.asarray([result.feasible for result in results], dtype=bool)
         c_op = np.asarray([
-            result.c_op / self.evaluator.instance.c_op_ref for result in results
+            result.c_op / self.evaluator.c_op_ref for result in results   # >>> CHANGED: evaluator refs <<<
         ], dtype=float)
         c_pass = np.asarray([
-            result.c_pass / self.evaluator.instance.c_pass_ref if result.feasible else np.nan
+            result.c_pass / self.evaluator.c_pass_ref if result.feasible else np.nan
             for result in results
         ], dtype=float)
         n_people, n_lines = pop.shape
@@ -204,6 +215,7 @@ class GeneticAlgorithm:
             best_fitness=self._best_fitness,
             best_result=self._best_result,
             diversity=float(diversity),
-            n_lp_solves=self.evaluator.n_lp_solves,
+            n_lp_solves=self.evaluator.n_lp_solves - self._solves_at_start,
             elapsed_s=perf_counter() - self._started_at,
+            served_fraction=np.asarray([r.served_fraction for r in results], dtype=float),  # >>> NEW <<<
         )

@@ -19,6 +19,20 @@ class AssignmentResult:
     penalty_cost: float
     objective: float  # c_pass + penalty_cost
     fully_served: bool
+    # >>> NEW: total demand, so that U(x) and rho_served(x) of PDF section 9.2 can be read directly <<<
+    total_demand: float = 0.0
+
+    @property
+    def unserved_total(self) -> float:
+        """U(x): total unserved demand (NaN if the solver failed)."""
+        return float(self.unserved.sum()) if self.unserved is not None else float("nan")
+
+    @property
+    def served_fraction(self) -> float:
+        """rho_served(x) = 1 - U(x) / total demand (1.0 if there is no demand)."""
+        if self.unserved is None:
+            return float("nan")
+        return 1.0 - self.unserved_total / self.total_demand if self.total_demand > 0 else 1.0
 
 
 class PassengerAssignment:
@@ -27,17 +41,28 @@ class PassengerAssignment:
     Both vectors follow instance.lines order, not line IDs. x=0 disables a line
     even with positive frequency. Frequencies are departures/hour and H is hours.
     Route time and unmet_penalty must use the same time unit (e.g. minutes).
-    Any LP optimum may be returned; there is no tie-breaking perturbation.
+    >>> CHANGED: tie-breaking rule (PDF 13.7 / 18.6). The LP minimises route cost + tie_eps * (position of
+    the route in its OD pair's route list). So among routes with EQUAL cost the one listed first gets the
+    flow; ties between different OD pairs are left to the solver, which is deterministic. The reported
+    c_pass always uses the true route costs. tie_eps=0 switches the rule off. <<<
     """
 
-    def __init__(self, instance: Instance, unmet_penalty: float, capacitated: bool = True):
+    def __init__(self, instance: Instance, unmet_penalty: float, capacitated: bool = True,
+                 tie_eps: float = 1e-6):  # >>> CHANGED: + tie_eps <<<
         if not np.isfinite(unmet_penalty) or unmet_penalty < 0:
             raise ValueError("unmet_penalty must be finite and nonnegative")
         instance.build()
         self.instance = instance
         self.unmet_penalty = float(unmet_penalty)
         self.capacitated = capacitated
-        self._cost = np.concatenate((instance.route_cost, np.full(instance.n_od, unmet_penalty)))
+        # >>> CHANGED: route costs get the tiny tie-breaking term (rank of the route within its OD pair)
+        rank, count = np.zeros(instance.n_routes), {}
+        for j, k in enumerate(instance.route_od):
+            rank[j] = count.get(k, 0)
+            count[k] = count.get(k, 0) + 1
+        self._cost = np.concatenate((instance.route_cost + tie_eps * rank,
+                                     np.full(instance.n_od, unmet_penalty)))
+        # <<< END CHANGED
         self._eq = sp.hstack((instance.A_od, sp.eye(instance.n_od)), format="csr")
         self._ub = sp.hstack((instance.A_cap,
                              sp.csr_matrix((len(instance.seg_line), instance.n_od))), format="csr")
@@ -93,4 +118,5 @@ class PassengerAssignment:
         penalty_cost = self.unmet_penalty * float(unserved.sum())
         return AssignmentResult(True, status, flows, c_pass, load, utilization,
                                 unserved, penalty_cost, c_pass + penalty_cost,
-                                bool(np.all(unserved <= tol)))
+                                bool(np.all(unserved <= tol)),
+                                total_demand=float(inst.demand.sum()))  # >>> NEW: total_demand <<<

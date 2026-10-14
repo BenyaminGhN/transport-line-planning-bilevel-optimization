@@ -1,0 +1,30 @@
+origin_id,origin_name,dest_id,dest_name,distance
+0,Amsterdam,18,Dordrecht,476
+0,Amsterdam,1,Rotterdam,217
+0,Amsterdam,16,Leiden,387
+1,Rotterdam,12,Arnhem,1962
+1,Rotterdam,14,Amersfoort,1469
+1,Rotterdam,8,Breda,1806
+2,The Hague,6,Tilburg,1224
+2,The Hague,8,Breda,459
+2,The Hague,13,Enschede,412
+3,Utrecht,16,Leiden,1583
+3,Utrecht,11,Haarlem,1903
+4,Eindhoven,6,Tilburg,1109
+4,Eindhoven,16,Leiden,303
+4,Eindhoven,19,'s-Hertogenbosch,288
+4,Eindhoven,5,Groningen,964
+4,Eindhoven,8,Breda,638
+4,Eindhoven,10,Apeldoorn,1427
+6,Tilburg,15,Zwolle,1638
+6,Tilburg,17,Maastricht,1322
+6,Tilburg,9,Nijmegen,1062
+7,Almere,17,Maastricht,109
+7,Almere,10,Apeldoorn,866
+8,Breda,17,Maastricht,654
+9,Nijmegen,11,Haarlem,963
+10,Apeldoorn,13,Enschede,1350
+11,Haarlem,18,Dordrecht,1605
+14,Amersfoort,16,Leiden,1748
+14,Amersfoort,18,Dordrecht,1834
+17,Maastricht,18,Dordrecht,1155

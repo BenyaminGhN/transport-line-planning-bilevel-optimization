@@ -1,0 +1,11 @@
+{
+  "horizon": 1.0,
+  "lambda_op": 0.5,
+  "lambda_pass": 0.5,
+  "unmet_penalty": null,
+  "k_routes": 3,
+  "max_transfers": 2,
+  "detour_factor": 2.5,
+  "budget": 59.1,
+  "fleet_total": 13
+}

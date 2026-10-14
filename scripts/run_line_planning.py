@@ -83,10 +83,10 @@ def main() -> None:
             f"travel_time={route.cost:.1f}"
         )
 
-    exact_evaluator = Evaluator(instance, penalty=penalty)
+    exact_evaluator = Evaluator(instance, unmet_penalty=penalty)
     exact = enumerate_all(exact_evaluator)
 
-    ga_evaluator = Evaluator(instance, penalty=penalty)
+    ga_evaluator = Evaluator(instance, unmet_penalty=penalty)
     config = GAConfig(pop_size=8, n_generations=6, mutation_rate=0.1, seed=4)
     ga = GeneticAlgorithm(ga_evaluator, config).run()
 

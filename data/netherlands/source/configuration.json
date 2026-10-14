@@ -1,0 +1,92 @@
+{
+    "distance": {
+        "min" : 100,
+        "max" : 2000
+    },
+    "demand": {
+        "min" : 10,
+        "max" : 20
+    },
+    "Nodes": [
+        {
+            "id": 0,
+            "name": "Amsterdam"
+        },
+        {
+            "id": 1,
+            "name": "Rotterdam"
+        },
+        {
+            "id": 2,
+            "name": "The Hague"
+        },
+        {
+            "id": 3,
+            "name": "Utrecht"
+        },
+        {
+            "id": 4,
+            "name": "Eindhoven"
+        },
+        {
+            "id": 5,
+            "name": "Groningen"
+        },
+        {
+            "id": 6,
+            "name": "Tilburg"
+        },
+        {
+            "id": 7,
+            "name": "Almere"
+        },
+        {
+            "id": 8,
+            "name": "Breda"
+        },
+        {
+            "id": 9,
+            "name": "Nijmegen"
+        },
+        {
+            "id": 10,
+            "name": "Apeldoorn"
+        },
+        {
+            "id": 11,
+            "name": "Haarlem"
+        },
+        {
+            "id": 12,
+            "name": "Arnhem"
+        },
+        {
+            "id": 13,
+            "name": "Enschede"
+        },
+        {
+            "id": 14,
+            "name": "Amersfoort"
+        },
+        {
+            "id": 15,
+            "name": "Zwolle"
+        },
+        {
+            "id": 16,
+            "name": "Leiden"
+        },
+        {
+            "id": 17,
+            "name": "Maastricht"
+        },
+        {
+            "id": 18,
+            "name": "Dordrecht"
+        },
+        {
+            "id": 19,
+            "name": "'s-Hertogenbosch"
+        }
+    ]
+}

@@ -41,7 +41,7 @@ def test_metrics_for_served_passengers():
 
 
 def test_evaluator_checks_constraints_and_caches():
-    evaluator = Evaluator(planning_instance(budget=6, fleet_total=2), penalty=100)
+    evaluator = Evaluator(planning_instance(budget=6, fleet_total=2), unmet_penalty=100)
     invalid = evaluator.evaluate([1, 1])
     assert not invalid.feasible and invalid.reason == "budget"
     first = evaluator.evaluate([1, 0])
@@ -54,14 +54,14 @@ def test_evaluator_checks_constraints_and_caches():
 
 
 def test_fleet_violation_is_reported():
-    evaluator = Evaluator(planning_instance(budget=100, fleet_total=2), penalty=100)
+    evaluator = Evaluator(planning_instance(budget=100, fleet_total=2), unmet_penalty=100)
     assert evaluator.check_plan([1, 1]) == (False, "fleet")
     with pytest.raises(ValueError, match="binary"):
         evaluator.evaluate([0.5, 1])
 
 
 def test_exact_enumeration_returns_all_plans_and_best():
-    evaluator = Evaluator(planning_instance(), penalty=100)
+    evaluator = Evaluator(planning_instance(), unmet_penalty=100)
     result = enumerate_all(evaluator)
     assert len(result.table) == 4
     assert result.table["bits"].tolist() == ["00", "01", "10", "11"]
@@ -70,6 +70,6 @@ def test_exact_enumeration_returns_all_plans_and_best():
 
 
 def test_exact_limit_is_enforced():
-    evaluator = Evaluator(planning_instance(), penalty=100)
+    evaluator = Evaluator(planning_instance(), unmet_penalty=100)
     with pytest.raises(ValueError, match="limited"):
         enumerate_all(evaluator, max_lines=1)

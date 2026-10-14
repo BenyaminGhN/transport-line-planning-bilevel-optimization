@@ -1,0 +1,381 @@
+origin_id,origin_name,dest_id,dest_name,demand
+0,Amsterdam,1,Rotterdam,15
+0,Amsterdam,2,The Hague,14
+0,Amsterdam,3,Utrecht,17
+0,Amsterdam,4,Eindhoven,15
+0,Amsterdam,5,Groningen,14
+0,Amsterdam,6,Tilburg,13
+0,Amsterdam,7,Almere,12
+0,Amsterdam,8,Breda,18
+0,Amsterdam,9,Nijmegen,14
+0,Amsterdam,10,Apeldoorn,17
+0,Amsterdam,11,Haarlem,10
+0,Amsterdam,12,Arnhem,16
+0,Amsterdam,13,Enschede,15
+0,Amsterdam,14,Amersfoort,12
+0,Amsterdam,15,Zwolle,15
+0,Amsterdam,16,Leiden,10
+0,Amsterdam,17,Maastricht,15
+0,Amsterdam,18,Dordrecht,16
+0,Amsterdam,19,'s-Hertogenbosch,18
+1,Rotterdam,0,Amsterdam,20
+1,Rotterdam,2,The Hague,13
+1,Rotterdam,3,Utrecht,19
+1,Rotterdam,4,Eindhoven,14
+1,Rotterdam,5,Groningen,12
+1,Rotterdam,6,Tilburg,18
+1,Rotterdam,7,Almere,18
+1,Rotterdam,8,Breda,16
+1,Rotterdam,9,Nijmegen,13
+1,Rotterdam,10,Apeldoorn,12
+1,Rotterdam,11,Haarlem,10
+1,Rotterdam,12,Arnhem,14
+1,Rotterdam,13,Enschede,10
+1,Rotterdam,14,Amersfoort,14
+1,Rotterdam,15,Zwolle,14
+1,Rotterdam,16,Leiden,20
+1,Rotterdam,17,Maastricht,13
+1,Rotterdam,18,Dordrecht,14
+1,Rotterdam,19,'s-Hertogenbosch,17
+2,The Hague,0,Amsterdam,20
+2,The Hague,1,Rotterdam,20
+2,The Hague,3,Utrecht,10
+2,The Hague,4,Eindhoven,12
+2,The Hague,5,Groningen,10
+2,The Hague,6,Tilburg,14
+2,The Hague,7,Almere,17
+2,The Hague,8,Breda,17
+2,The Hague,9,Nijmegen,19
+2,The Hague,10,Apeldoorn,13
+2,The Hague,11,Haarlem,18
+2,The Hague,12,Arnhem,20
+2,The Hague,13,Enschede,13
+2,The Hague,14,Amersfoort,11
+2,The Hague,15,Zwolle,11
+2,The Hague,16,Leiden,19
+2,The Hague,17,Maastricht,14
+2,The Hague,18,Dordrecht,14
+2,The Hague,19,'s-Hertogenbosch,13
+3,Utrecht,0,Amsterdam,19
+3,Utrecht,1,Rotterdam,15
+3,Utrecht,2,The Hague,20
+3,Utrecht,4,Eindhoven,17
+3,Utrecht,5,Groningen,17
+3,Utrecht,6,Tilburg,16
+3,Utrecht,7,Almere,19
+3,Utrecht,8,Breda,10
+3,Utrecht,9,Nijmegen,16
+3,Utrecht,10,Apeldoorn,19
+3,Utrecht,11,Haarlem,19
+3,Utrecht,12,Arnhem,13
+3,Utrecht,13,Enschede,11
+3,Utrecht,14,Amersfoort,16
+3,Utrecht,15,Zwolle,10
+3,Utrecht,16,Leiden,17
+3,Utrecht,17,Maastricht,10
+3,Utrecht,18,Dordrecht,14
+3,Utrecht,19,'s-Hertogenbosch,19
+4,Eindhoven,0,Amsterdam,11
+4,Eindhoven,1,Rotterdam,20
+4,Eindhoven,2,The Hague,15
+4,Eindhoven,3,Utrecht,18
+4,Eindhoven,5,Groningen,17
+4,Eindhoven,6,Tilburg,11
+4,Eindhoven,7,Almere,17
+4,Eindhoven,8,Breda,20
+4,Eindhoven,9,Nijmegen,11
+4,Eindhoven,10,Apeldoorn,19
+4,Eindhoven,11,Haarlem,20
+4,Eindhoven,12,Arnhem,20
+4,Eindhoven,13,Enschede,11
+4,Eindhoven,14,Amersfoort,16
+4,Eindhoven,15,Zwolle,18
+4,Eindhoven,16,Leiden,18
+4,Eindhoven,17,Maastricht,19
+4,Eindhoven,18,Dordrecht,10
+4,Eindhoven,19,'s-Hertogenbosch,15
+5,Groningen,0,Amsterdam,12
+5,Groningen,1,Rotterdam,18
+5,Groningen,2,The Hague,11
+5,Groningen,3,Utrecht,18
+5,Groningen,4,Eindhoven,20
+5,Groningen,6,Tilburg,19
+5,Groningen,7,Almere,16
+5,Groningen,8,Breda,19
+5,Groningen,9,Nijmegen,19
+5,Groningen,10,Apeldoorn,18
+5,Groningen,11,Haarlem,14
+5,Groningen,12,Arnhem,11
+5,Groningen,13,Enschede,14
+5,Groningen,14,Amersfoort,18
+5,Groningen,15,Zwolle,17
+5,Groningen,16,Leiden,12
+5,Groningen,17,Maastricht,14
+5,Groningen,18,Dordrecht,17
+5,Groningen,19,'s-Hertogenbosch,12
+6,Tilburg,0,Amsterdam,17
+6,Tilburg,1,Rotterdam,11
+6,Tilburg,2,The Hague,15
+6,Tilburg,3,Utrecht,17
+6,Tilburg,4,Eindhoven,11
+6,Tilburg,5,Groningen,11
+6,Tilburg,7,Almere,18
+6,Tilburg,8,Breda,12
+6,Tilburg,9,Nijmegen,17
+6,Tilburg,10,Apeldoorn,14
+6,Tilburg,11,Haarlem,15
+6,Tilburg,12,Arnhem,19
+6,Tilburg,13,Enschede,16
+6,Tilburg,14,Amersfoort,17
+6,Tilburg,15,Zwolle,19
+6,Tilburg,16,Leiden,18
+6,Tilburg,17,Maastricht,16
+6,Tilburg,18,Dordrecht,15
+6,Tilburg,19,'s-Hertogenbosch,14
+7,Almere,0,Amsterdam,19
+7,Almere,1,Rotterdam,17
+7,Almere,2,The Hague,12
+7,Almere,3,Utrecht,12
+7,Almere,4,Eindhoven,16
+7,Almere,5,Groningen,20
+7,Almere,6,Tilburg,13
+7,Almere,8,Breda,17
+7,Almere,9,Nijmegen,19
+7,Almere,10,Apeldoorn,20
+7,Almere,11,Haarlem,15
+7,Almere,12,Arnhem,19
+7,Almere,13,Enschede,11
+7,Almere,14,Amersfoort,19
+7,Almere,15,Zwolle,13
+7,Almere,16,Leiden,13
+7,Almere,17,Maastricht,14
+7,Almere,18,Dordrecht,13
+7,Almere,19,'s-Hertogenbosch,14
+8,Breda,0,Amsterdam,13
+8,Breda,1,Rotterdam,19
+8,Breda,2,The Hague,12
+8,Breda,3,Utrecht,14
+8,Breda,4,Eindhoven,14
+8,Breda,5,Groningen,11
+8,Breda,6,Tilburg,10
+8,Breda,7,Almere,13
+8,Breda,9,Nijmegen,13
+8,Breda,10,Apeldoorn,17
+8,Breda,11,Haarlem,16
+8,Breda,12,Arnhem,12
+8,Breda,13,Enschede,12
+8,Breda,14,Amersfoort,15
+8,Breda,15,Zwolle,14
+8,Breda,16,Leiden,11
+8,Breda,17,Maastricht,18
+8,Breda,18,Dordrecht,12
+8,Breda,19,'s-Hertogenbosch,15
+9,Nijmegen,0,Amsterdam,13
+9,Nijmegen,1,Rotterdam,10
+9,Nijmegen,2,The Hague,17
+9,Nijmegen,3,Utrecht,18
+9,Nijmegen,4,Eindhoven,19
+9,Nijmegen,5,Groningen,12
+9,Nijmegen,6,Tilburg,10
+9,Nijmegen,7,Almere,18
+9,Nijmegen,8,Breda,16
+9,Nijmegen,10,Apeldoorn,19
+9,Nijmegen,11,Haarlem,18
+9,Nijmegen,12,Arnhem,14
+9,Nijmegen,13,Enschede,20
+9,Nijmegen,14,Amersfoort,11
+9,Nijmegen,15,Zwolle,16
+9,Nijmegen,16,Leiden,16
+9,Nijmegen,17,Maastricht,19
+9,Nijmegen,18,Dordrecht,18
+9,Nijmegen,19,'s-Hertogenbosch,19
+10,Apeldoorn,0,Amsterdam,12
+10,Apeldoorn,1,Rotterdam,15
+10,Apeldoorn,2,The Hague,12
+10,Apeldoorn,3,Utrecht,20
+10,Apeldoorn,4,Eindhoven,17
+10,Apeldoorn,5,Groningen,12
+10,Apeldoorn,6,Tilburg,11
+10,Apeldoorn,7,Almere,10
+10,Apeldoorn,8,Breda,10
+10,Apeldoorn,9,Nijmegen,15
+10,Apeldoorn,11,Haarlem,20
+10,Apeldoorn,12,Arnhem,14
+10,Apeldoorn,13,Enschede,16
+10,Apeldoorn,14,Amersfoort,16
+10,Apeldoorn,15,Zwolle,18
+10,Apeldoorn,16,Leiden,17
+10,Apeldoorn,17,Maastricht,20
+10,Apeldoorn,18,Dordrecht,11
+10,Apeldoorn,19,'s-Hertogenbosch,12
+11,Haarlem,0,Amsterdam,11
+11,Haarlem,1,Rotterdam,10
+11,Haarlem,2,The Hague,16
+11,Haarlem,3,Utrecht,15
+11,Haarlem,4,Eindhoven,11
+11,Haarlem,5,Groningen,20
+11,Haarlem,6,Tilburg,20
+11,Haarlem,7,Almere,13
+11,Haarlem,8,Breda,18
+11,Haarlem,9,Nijmegen,20
+11,Haarlem,10,Apeldoorn,20
+11,Haarlem,12,Arnhem,12
+11,Haarlem,13,Enschede,19
+11,Haarlem,14,Amersfoort,19
+11,Haarlem,15,Zwolle,14
+11,Haarlem,16,Leiden,12
+11,Haarlem,17,Maastricht,12
+11,Haarlem,18,Dordrecht,19
+11,Haarlem,19,'s-Hertogenbosch,14
+12,Arnhem,0,Amsterdam,15
+12,Arnhem,1,Rotterdam,20
+12,Arnhem,2,The Hague,15
+12,Arnhem,3,Utrecht,18
+12,Arnhem,4,Eindhoven,13
+12,Arnhem,5,Groningen,12
+12,Arnhem,6,Tilburg,18
+12,Arnhem,7,Almere,14
+12,Arnhem,8,Breda,20
+12,Arnhem,9,Nijmegen,14
+12,Arnhem,10,Apeldoorn,10
+12,Arnhem,11,Haarlem,16
+12,Arnhem,13,Enschede,19
+12,Arnhem,14,Amersfoort,10
+12,Arnhem,15,Zwolle,13
+12,Arnhem,16,Leiden,17
+12,Arnhem,17,Maastricht,12
+12,Arnhem,18,Dordrecht,10
+12,Arnhem,19,'s-Hertogenbosch,17
+13,Enschede,0,Amsterdam,18
+13,Enschede,1,Rotterdam,14
+13,Enschede,2,The Hague,18
+13,Enschede,3,Utrecht,17
+13,Enschede,4,Eindhoven,18
+13,Enschede,5,Groningen,18
+13,Enschede,6,Tilburg,13
+13,Enschede,7,Almere,16
+13,Enschede,8,Breda,10
+13,Enschede,9,Nijmegen,18
+13,Enschede,10,Apeldoorn,18
+13,Enschede,11,Haarlem,16
+13,Enschede,12,Arnhem,12
+13,Enschede,14,Amersfoort,10
+13,Enschede,15,Zwolle,17
+13,Enschede,16,Leiden,17
+13,Enschede,17,Maastricht,16
+13,Enschede,18,Dordrecht,11
+13,Enschede,19,'s-Hertogenbosch,20
+14,Amersfoort,0,Amsterdam,18
+14,Amersfoort,1,Rotterdam,14
+14,Amersfoort,2,The Hague,20
+14,Amersfoort,3,Utrecht,10
+14,Amersfoort,4,Eindhoven,11
+14,Amersfoort,5,Groningen,10
+14,Amersfoort,6,Tilburg,18
+14,Amersfoort,7,Almere,10
+14,Amersfoort,8,Breda,16
+14,Amersfoort,9,Nijmegen,15
+14,Amersfoort,10,Apeldoorn,14
+14,Amersfoort,11,Haarlem,11
+14,Amersfoort,12,Arnhem,17
+14,Amersfoort,13,Enschede,19
+14,Amersfoort,15,Zwolle,17
+14,Amersfoort,16,Leiden,17
+14,Amersfoort,17,Maastricht,18
+14,Amersfoort,18,Dordrecht,16
+14,Amersfoort,19,'s-Hertogenbosch,12
+15,Zwolle,0,Amsterdam,17
+15,Zwolle,1,Rotterdam,16
+15,Zwolle,2,The Hague,16
+15,Zwolle,3,Utrecht,14
+15,Zwolle,4,Eindhoven,17
+15,Zwolle,5,Groningen,13
+15,Zwolle,6,Tilburg,10
+15,Zwolle,7,Almere,19
+15,Zwolle,8,Breda,13
+15,Zwolle,9,Nijmegen,11
+15,Zwolle,10,Apeldoorn,20
+15,Zwolle,11,Haarlem,15
+15,Zwolle,12,Arnhem,12
+15,Zwolle,13,Enschede,17
+15,Zwolle,14,Amersfoort,20
+15,Zwolle,16,Leiden,18
+15,Zwolle,17,Maastricht,16
+15,Zwolle,18,Dordrecht,11
+15,Zwolle,19,'s-Hertogenbosch,11
+16,Leiden,0,Amsterdam,15
+16,Leiden,1,Rotterdam,12
+16,Leiden,2,The Hague,12
+16,Leiden,3,Utrecht,11
+16,Leiden,4,Eindhoven,15
+16,Leiden,5,Groningen,12
+16,Leiden,6,Tilburg,17
+16,Leiden,7,Almere,20
+16,Leiden,8,Breda,16
+16,Leiden,9,Nijmegen,20
+16,Leiden,10,Apeldoorn,19
+16,Leiden,11,Haarlem,10
+16,Leiden,12,Arnhem,16
+16,Leiden,13,Enschede,18
+16,Leiden,14,Amersfoort,16
+16,Leiden,15,Zwolle,15
+16,Leiden,17,Maastricht,19
+16,Leiden,18,Dordrecht,13
+16,Leiden,19,'s-Hertogenbosch,12
+17,Maastricht,0,Amsterdam,19
+17,Maastricht,1,Rotterdam,14
+17,Maastricht,2,The Hague,13
+17,Maastricht,3,Utrecht,17
+17,Maastricht,4,Eindhoven,13
+17,Maastricht,5,Groningen,16
+17,Maastricht,6,Tilburg,16
+17,Maastricht,7,Almere,15
+17,Maastricht,8,Breda,20
+17,Maastricht,9,Nijmegen,18
+17,Maastricht,10,Apeldoorn,16
+17,Maastricht,11,Haarlem,20
+17,Maastricht,12,Arnhem,16
+17,Maastricht,13,Enschede,18
+17,Maastricht,14,Amersfoort,15
+17,Maastricht,15,Zwolle,12
+17,Maastricht,16,Leiden,19
+17,Maastricht,18,Dordrecht,17
+17,Maastricht,19,'s-Hertogenbosch,16
+18,Dordrecht,0,Amsterdam,12
+18,Dordrecht,1,Rotterdam,19
+18,Dordrecht,2,The Hague,18
+18,Dordrecht,3,Utrecht,11
+18,Dordrecht,4,Eindhoven,18
+18,Dordrecht,5,Groningen,17
+18,Dordrecht,6,Tilburg,15
+18,Dordrecht,7,Almere,13
+18,Dordrecht,8,Breda,11
+18,Dordrecht,9,Nijmegen,14
+18,Dordrecht,10,Apeldoorn,16
+18,Dordrecht,11,Haarlem,20
+18,Dordrecht,12,Arnhem,11
+18,Dordrecht,13,Enschede,14
+18,Dordrecht,14,Amersfoort,13
+18,Dordrecht,15,Zwolle,15
+18,Dordrecht,16,Leiden,20
+18,Dordrecht,17,Maastricht,16
+18,Dordrecht,19,'s-Hertogenbosch,13
+19,'s-Hertogenbosch,0,Amsterdam,10
+19,'s-Hertogenbosch,1,Rotterdam,11
+19,'s-Hertogenbosch,2,The Hague,17
+19,'s-Hertogenbosch,3,Utrecht,20
+19,'s-Hertogenbosch,4,Eindhoven,20
+19,'s-Hertogenbosch,5,Groningen,20
+19,'s-Hertogenbosch,6,Tilburg,16
+19,'s-Hertogenbosch,7,Almere,16
+19,'s-Hertogenbosch,8,Breda,19
+19,'s-Hertogenbosch,9,Nijmegen,14
+19,'s-Hertogenbosch,10,Apeldoorn,15
+19,'s-Hertogenbosch,11,Haarlem,13
+19,'s-Hertogenbosch,12,Arnhem,20
+19,'s-Hertogenbosch,13,Enschede,10
+19,'s-Hertogenbosch,14,Amersfoort,14
+19,'s-Hertogenbosch,15,Zwolle,18
+19,'s-Hertogenbosch,16,Leiden,15
+19,'s-Hertogenbosch,17,Maastricht,19
+19,'s-Hertogenbosch,18,Dordrecht,16

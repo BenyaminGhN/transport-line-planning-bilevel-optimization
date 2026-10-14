@@ -1,7 +1,9 @@
 import pytest
 
+from tests.helpers import two_line_instance
+
 
 @pytest.fixture
 def tiny_instance():
-    """Hand-made instance: 2 OD routes, route 1 shorter but capacity-limited; 3 lines. Returns Instance."""
-    pytest.skip("not implemented")
+    """One OD pair (demand 100), fast line A (10 min, capacity 60), slow line B (15 min, capacity 100)."""
+    return two_line_instance()

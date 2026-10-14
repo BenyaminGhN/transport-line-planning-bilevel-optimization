@@ -1,7 +1,7 @@
 """Pure data containers. No optimisation logic lives here."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace  # >>> CHANGED: + replace (used by Instance.modified) <<<
 
 import numpy as np
 import pandas as pd
@@ -12,21 +12,43 @@ import scipy.sparse as sp
 class Line:
     """Candidate transit line l in L.
 
-    Segments are DIRECTED. A bidirectional line is stored as two Line objects
-    (or one Line whose segment list contains both directions) - decide once in io.py.
+    Segments are DIRECTED.
+    >>> CHANGED: decided the open question of the old docstring. A line can run in one direction only
+    (bidirectional=False, your original behaviour) or in both directions (bidirectional=True).
+    A two-way line has 2*(n-1) segments: indexes 0..n-2 run forward (stops[i] -> stops[i+1]) and
+    index (n-1)+i is the reverse of forward segment i. Each direction has its own capacity.
+    Two-way lines are what an undirected network such as Mandl needs; otherwise every corridor would
+    need two separate candidate lines and the search space would double. <<<
     """
     id: int
     stops: tuple[int, ...]            # ordered node ids
-    segment_times: tuple[float, ...]  # t0_ls, len = len(stops) - 1
+    segment_times: tuple[float, ...]  # t0_ls of the FORWARD segments, len = len(stops) - 1
     cost: float                       # c_l
     frequency: float                  # f_l  (vehicles per hour)
-    vehicle_capacity: int             # kappa_l
+    vehicle_capacity: float           # kappa_l  # >>> CHANGED: int -> float (capacity sweeps give e.g. 28.5) <<<
     fleet: int                        # v_l
+    bidirectional: bool = False       # >>> NEW <<<
+
+    # >>> NEW: number of forward segments (helper for the two-way indexing above)
+    @property
+    def n_forward(self) -> int:
+        return len(self.stops) - 1
+    # <<< END NEW
 
     @property
     def segments(self) -> tuple[tuple[int, int], ...]:
-        """Output: ((u, v), ...) directed arcs of the line, length len(stops)-1."""
-        return tuple(zip(self.stops[:-1], self.stops[1:]))
+        """Output: ((u, v), ...) directed arcs of the line (forward arcs, then reverse arcs if two-way)."""
+        # >>> CHANGED: add the reverse arcs for two-way lines
+        forward = tuple(zip(self.stops[:-1], self.stops[1:]))
+        if not self.bidirectional:
+            return forward
+        return forward + tuple((v, u) for u, v in forward)
+        # <<< END CHANGED
+
+    # >>> NEW: in-vehicle time of segment s (a reverse segment takes as long as its forward twin)
+    def segment_time(self, s: int) -> float:
+        return self.segment_times[s % self.n_forward]
+    # <<< END NEW
 
     def segment_capacity(self, horizon: float) -> float:
         """Input: H. Output: kappa_l * f_l * H (passengers per segment over the horizon)."""
@@ -60,6 +82,10 @@ class Instance:
     fleet_total: int = 10**9           # F
     lambda_op: float = 0.5
     lambda_pass: float = 0.5
+    # >>> NEW: physical links (u, v, time), only used for drawing the network and for line generation
+    edges: pd.DataFrame | None = None
+    # >>> NEW: omega of the PDF (penalty per unserved passenger, in minutes). None = default_unmet_penalty()
+    unmet_penalty: float | None = None
 
     # ---- derived arrays, filled by build() --------------------------------
     seg_index: dict[tuple[int, int], int] = field(default_factory=dict)  # (line_id, seg_idx) -> row
@@ -115,26 +141,30 @@ class Instance:
         self.seg_line = np.asarray(owners, dtype=int)
         self.seg_capacity = np.asarray(capacities, dtype=float)
         cap_rows, cap_cols, line_rows, line_cols, route_od = [], [], [], [], []
+        # >>> CHANGED (speed only): look arrays up once instead of calling line.segments / od.iloc for
+        # every leg of every route. The checks below are exactly yours. <<<
+        origins, destinations = self.od["origin"].to_numpy(), self.od["dest"].to_numpy()
+        arcs_of_line = {line.id: line.segments for line in self.lines}
         for j, route in enumerate(self.routes):
             if route.od_index not in od_pos:
                 raise ValueError("Route references an unknown OD ID")
             k = od_pos[route.od_index]
             if not route.legs or len(set(route.legs)) != len(route.legs):
                 raise ValueError("Routes must be nonempty and cannot repeat a line segment")
-            current = self.od.iloc[k]["origin"]
+            current = origins[k]
             travel_time = 0.0
             for line_id, s in route.legs:
                 if (line_id, s) not in self.seg_index:
                     raise ValueError("Route references an unknown line segment")
                 line = self.lines[line_pos[line_id]]
-                start, end = line.segments[s]
+                start, end = arcs_of_line[line_id][s]
                 if start != current:
                     raise ValueError("Route legs must form a connected path from the OD origin")
                 current = end
-                travel_time += line.segment_times[s]
+                travel_time += line.segment_time(s)  # >>> CHANGED: segment_time() also works for reverse segments <<<
                 cap_rows.append(self.seg_index[line_id, s])
                 cap_cols.append(j)
-            if current != self.od.iloc[k]["dest"]:
+            if current != destinations[k]:
                 raise ValueError("Route must end at the OD destination")
             if not np.isfinite(route.cost) or route.cost < 0 or not np.isclose(route.cost, travel_time):
                 raise ValueError("Route cost must equal its total in-vehicle time")
@@ -160,3 +190,30 @@ class Instance:
             raise ValueError("reference values must be finite and positive")
         self.c_op_ref = float(c_op_ref)
         self.c_pass_ref = float(c_pass_ref)
+
+    # >>> NEW: three small helpers (default omega, demand per node for plots, copy for sensitivity runs)
+    def default_unmet_penalty(self, factor: float = 5.0) -> float:
+        """Default omega: `factor` times the longest route (in minutes). Being left behind then costs more
+        than any single ride, but omega stays finite as the PDF requires. Check it with the omega sweep."""
+        longest = float(np.max(self.route_cost)) if self.routes else 1.0
+        return factor * max(longest, 1.0)
+
+    def node_demand(self) -> pd.Series:
+        """Total demand (origin + destination) per node id, used for node sizes in the plots."""
+        total = self.od.groupby("origin")["demand"].sum().add(
+            self.od.groupby("dest")["demand"].sum(), fill_value=0.0)
+        return total.reindex(self.nodes["id"]).fillna(0.0)
+
+    def modified(self, capacity_scale: float = 1.0, budget: float | None = None,
+                 fleet_total: float | None = None, lambda_op: float | None = None) -> "Instance":
+        """Copy with other vehicle capacity / budget / fleet / weight (for sensitivity analysis).
+        The original instance is not touched; routes are shared."""
+        lines = [replace(line, vehicle_capacity=line.vehicle_capacity * capacity_scale) for line in self.lines]
+        new = replace(self, lines=lines,
+                      budget=self.budget if budget is None else budget,
+                      fleet_total=self.fleet_total if fleet_total is None else fleet_total)
+        if lambda_op is not None:
+            new.lambda_op, new.lambda_pass = float(lambda_op), 1.0 - float(lambda_op)
+        new.build()
+        return new
+    # <<< END NEW

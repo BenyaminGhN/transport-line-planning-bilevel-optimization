@@ -1,13 +1,13 @@
 # Public Transport Line Planning as a Stackelberg Game
 
-Data flow (everything left of `Evaluator` is computed ONCE per instance):
+The authority chooses which candidate lines to run (budget and fleet limited). The passengers then react: they
+solve a capacity-constrained LP in which unserved demand is allowed but penalised. A genetic algorithm solves the
+authority's problem; exhaustive enumeration gives the exact benchmark.
 
-    io -> Instance -> lines -> routes -> Instance.build()   (sparse matrices)
-                                              |
-    x (0/1 vector) -> Evaluator.evaluate(x) -> PassengerAssignment.solve(x) -> y*(x)
-                                              |-> objective, Gini, P95
-    ExactEnumeration  and  GeneticAlgorithm both call the SAME Evaluator.
-    GeneticAlgorithm calls on_generation(GenerationRecord) after every generation
-    -> viz.LiveDashboard draws it / saves a PNG frame.
+    data files -> Instance -> lines -> routes -> Instance.build()
+    x (0/1 per line) -> Evaluator -> passenger LP -> objective, Gini, P95, served share
+    enumerate_all (exact) and GeneticAlgorithm use the same Evaluator
+    GeneticAlgorithm -> on_generation(record) -> LiveDashboard (live window / PNG frames / GIF)
 
-Install: `pip install -e .`   Run: `python scripts/run_synthetic.py --viz save`
+Install: `pip install -e .`  Quick start: see [docs/README.md](docs/README.md).
+What was changed in the code you wrote: [CHANGES.md](CHANGES.md).

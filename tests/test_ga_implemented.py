@@ -26,13 +26,13 @@ def planning_instance():
 
 
 def run_ga(seed=4, callback=None):
-    evaluator = Evaluator(planning_instance(), penalty=100)
+    evaluator = Evaluator(planning_instance(), unmet_penalty=100)
     config = GAConfig(pop_size=8, n_generations=6, mutation_rate=0.1, seed=seed)
     return GeneticAlgorithm(evaluator, config, on_generation=callback).run()
 
 
 def test_ga_matches_exact_on_small_instance():
-    exact = enumerate_all(Evaluator(planning_instance(), penalty=100))
+    exact = enumerate_all(Evaluator(planning_instance(), unmet_penalty=100))
     result = run_ga()
     assert result.best.objective == exact.best.objective
     np.testing.assert_array_equal(result.best.x, exact.best.x)

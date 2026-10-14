@@ -40,9 +40,11 @@ def build_graph(nodes: pd.DataFrame, edges: pd.DataFrame) -> nx.DiGraph:
 
 
 def generate_candidate_lines(graph: nx.DiGraph, od: pd.DataFrame, n_lines: int,
-                             min_stops: int = 3, max_stops: int = 8, seed: int = 0) -> list[list[int]]:
+                             min_stops: int = 3, max_stops: int = 8, seed: int = 0,
+                             bidirectional: bool = False) -> list[list[int]]:  # >>> CHANGED: + bidirectional <<<
     """Input: graph, OD table, number of lines wanted.
-    Output: list of stop sequences (e.g. shortest paths between high-demand OD pairs)."""
+    Output: list of stop sequences (shortest paths between high-demand OD pairs, see below).
+    bidirectional=True: a path and its reverse are the same two-way line (the reverse is not added again)."""
     del seed  # The ranking is deliberately deterministic; retained for API compatibility.
     if n_lines < 0:
         raise ValueError("n_lines must be nonnegative")
@@ -61,37 +63,86 @@ def generate_candidate_lines(graph: nx.DiGraph, od: pd.DataFrame, n_lines: int,
     ranked_od["_row"] = np.arange(len(ranked_od))
     ranked_od = ranked_od.sort_values(["demand", "_row"], ascending=[False, True])
 
-    candidates: list[tuple[float, float, tuple]] = []
+    # >>> CHANGED: new selection rule (your version is replaced, the checks above are yours).
+    # Why: your loop collected up to n_lines paths for the FIRST (busiest) OD pair before looking at the
+    # next one, so with 10 lines all candidates were near-copies for 1-2 OD pairs and most demand nodes
+    # were on no line (tested on a 3x4 grid: 2 of 56 OD pairs covered, one demand node uncovered).
+    # Now: (1) round robin over the OD pairs, busiest first - round 1 takes every pair's shortest path,
+    #      round 2 the second shortest path of every pair, ... until n_lines are found;
+    #      (2) add connecting lines until every demand node is on a line and all lines are connected.
+    pairs = [(row.origin, row.dest) for row in ranked_od.itertuples(index=False)
+             if row.origin in graph and row.dest in graph and row.origin != row.dest]
+    sequences: list[list[int]] = []
     seen: set[tuple] = set()
-    per_od_limit = max(n_lines, 1)
-    for row in ranked_od.itertuples(index=False):
-        origin, dest = row.origin, row.dest
-        if origin not in graph or dest not in graph or origin == dest:
-            continue
-        try:
-            paths = nx.shortest_simple_paths(graph, origin, dest, weight="time")
-            accepted = 0
-            for candidate_index, path in enumerate(paths):
-                if candidate_index >= max(100, 50 * per_od_limit):
-                    break
-                if len(path) > max_stops:
-                    continue
-                if len(path) < min_stops:
-                    continue
-                key = tuple(path)
-                if key in seen:
-                    continue
-                seen.add(key)
-                travel_time = nx.path_weight(graph, path, weight="time")
-                candidates.append((-float(row.demand), float(travel_time), key))
-                accepted += 1
-                if accepted >= per_od_limit:
-                    break
-        except (nx.NetworkXNoPath, nx.NodeNotFound):
-            continue
 
-    candidates.sort(key=lambda item: (item[0], item[1], tuple(map(str, item[2]))))
-    return [list(path) for _, _, path in candidates[:n_lines]]
+    def add(path: list[int], strict: bool = True) -> bool:
+        """Append path unless known (a two-way line equals its reverse) or outside the stop limits."""
+        if strict and not min_stops <= len(path) <= max_stops:
+            return False
+        key = min(tuple(path), tuple(reversed(path))) if bidirectional else tuple(path)
+        if key in seen:
+            return False
+        seen.add(key)
+        sequences.append(list(path))
+        return True
+
+    streams = {pair: _simple_paths(graph, *pair) for pair in pairs}   # shortest path first, then longer
+    active = list(pairs)
+    while active and len(sequences) < n_lines:
+        still_active = []
+        for pair in active:
+            if len(sequences) >= n_lines:
+                break
+            path = _next_new_path(streams[pair], add)
+            if path is not None:
+                still_active.append(pair)
+        active = still_active
+    _add_connecting_lines(graph, sequences, od, add)
+    return sequences
+    # <<< END CHANGED
+
+
+# >>> NEW: helpers of generate_candidate_lines
+def _simple_paths(graph: nx.DiGraph, origin, dest):
+    """Loop-free paths from origin to dest, shortest first (empty if there is none)."""
+    try:
+        yield from nx.shortest_simple_paths(graph, origin, dest, weight="time")
+    except (nx.NetworkXNoPath, nx.NodeNotFound):
+        return
+
+
+def _next_new_path(stream, add, max_tries: int = 200):
+    """Take paths from the stream until add() accepts one. Returns it, or None if the stream is used up."""
+    for _, path in zip(range(max_tries), stream):
+        if add(path):
+            return path
+    return None
+
+
+def _add_connecting_lines(graph: nx.DiGraph, sequences: list, od: pd.DataFrame, add) -> None:
+    """Add shortest-path lines until every demand node is on a line and the lines form one network.
+    (So the returned list can be a few lines longer than n_lines.)"""
+    demand_nodes = {n for n in set(od["origin"]) | set(od["dest"]) if n in graph}
+    dist = dict(nx.all_pairs_dijkstra_path_length(graph, weight="time"))
+    for _ in range(len(graph) + 1):                       # each round joins two groups of nodes
+        links = nx.Graph()
+        links.add_nodes_from(demand_nodes)
+        for stops in sequences:
+            links.add_edges_from(zip(stops[:-1], stops[1:]))
+        groups = sorted(nx.connected_components(links), key=len, reverse=True)
+        if len(groups) <= 1:
+            return
+        best = None                                        # closest pair (main group, other group)
+        for other in groups[1:]:
+            for u in groups[0]:
+                for v in other:
+                    for a, b in ((u, v), (v, u)):
+                        if b in dist.get(a, {}) and (best is None or dist[a][b] < best[0]):
+                            best = (dist[a][b], a, b)
+        if best is None:                                   # the network itself is disconnected
+            return
+        add(nx.shortest_path(graph, best[1], best[2], weight="time"), strict=False)
+# <<< END NEW
 
 
 def attach_line_parameters(stop_sequences: list[list[int]], graph: nx.DiGraph,
@@ -127,6 +178,8 @@ def attach_line_parameters(stop_sequences: list[list[int]], graph: nx.DiGraph,
             frequency=float(row["frequency"]),
             vehicle_capacity=int(row["vehicle_capacity"]),
             fleet=int(row["fleet"]),
+            # >>> NEW: optional column 'bidirectional' (default: one-way, as before) <<<
+            bidirectional=bool(row["bidirectional"]) if "bidirectional" in params.columns else False,
         ))
     if len({line.id for line in lines}) != len(lines):
         raise ValueError("line IDs must be unique")
@@ -145,9 +198,11 @@ def save_lines(lines: list[Line], path: str | Path) -> None:
         "frequency": line.frequency,
         "vehicle_capacity": line.vehicle_capacity,
         "fleet": line.fleet,
+        "bidirectional": int(line.bidirectional),  # >>> NEW <<<
     } for line in lines]
     pd.DataFrame(records, columns=[
-        "id", "stops", "segment_times", "cost", "frequency", "vehicle_capacity", "fleet"
+        "id", "stops", "segment_times", "cost", "frequency", "vehicle_capacity", "fleet",
+        "bidirectional",  # >>> NEW <<<
     ]).to_csv(path, index=False)
 
 
@@ -157,14 +212,18 @@ def load_lines(path: str | Path) -> list[Line]:
     required = {"id", "stops", "segment_times", "cost", "frequency", "vehicle_capacity", "fleet"}
     if not required.issubset(table.columns):
         raise ValueError("candidate-line CSV has missing columns")
+    # >>> NEW: 'bidirectional' is optional so files written by your old save_lines still load <<<
+    if "bidirectional" not in table.columns:
+        table["bidirectional"] = 0
     lines = [Line(
         id=int(row.id),
         stops=tuple(json.loads(row.stops)),
         segment_times=tuple(float(value) for value in json.loads(row.segment_times)),
         cost=float(row.cost),
         frequency=float(row.frequency),
-        vehicle_capacity=int(row.vehicle_capacity),
+        vehicle_capacity=float(row.vehicle_capacity),  # >>> CHANGED: int() -> float() (int() cut off 28.5) <<<
         fleet=int(row.fleet),
+        bidirectional=bool(row.bidirectional),  # >>> NEW <<<
     ) for row in table.itertuples(index=False)]
     if len({line.id for line in lines}) != len(lines):
         raise ValueError("line IDs must be unique")

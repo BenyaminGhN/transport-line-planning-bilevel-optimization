@@ -1,11 +1,9 @@
-"""Mandl study: GA only (|L| too large for enumeration unless the line set is small)."""
-from __future__ import annotations
+"""Mandl benchmark: GA (and, with --exact, the exhaustive enumeration, about 2 minutes).   >>> CHANGED <<<
 
-
-def main() -> None:
-    """Multiple seeds -> results/mandl_runs.csv (best objective, runtime, LP solves)."""
-    raise NotImplementedError
-
+Run from the repository root:
+    python -m scripts.run_mandl --viz save
+"""
+from scripts.common import parse_args, run_study
 
 if __name__ == "__main__":
-    main()
+    run_study("mandl", parse_args(__doc__, default_exact=False))

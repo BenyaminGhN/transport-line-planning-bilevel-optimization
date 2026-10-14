@@ -50,65 +50,35 @@ should point to `src/ptlp/__init__.py` in your checkout.
 declared dependencies. Source edits are available on the next run without
 reinstalling. Run the installation command again if dependencies change.
 
-## 2. Run the passenger-assignment example
+## 2. Quick start (5 commands)
+
+> 🔶 **CHANGED**: this section is new. The old "run one assignment" example still works (`python -m scripts.run_assignment`).
 
 ```sh
-python -m scripts.run_assignment
+python -m scripts.generate_data      # writes data/synthetic/* and the candidate lines of data/mandl/  (1 second)
+python -m scripts.run_synthetic      # exact answer + GA on the synthetic city, with GIF   (about 40 seconds)
+python -m scripts.run_baselines      # compares with the two baselines of the proposal     (about 30 seconds)
+python -m scripts.run_sensitivity    # capacity, weights, omega, budget, fleet, routes      (about 90 seconds)
+python -m scripts.run_mandl          # GA on the Mandl network (add --exact for the exact answer, about 2 minutes)
 ```
 
-Expected output:
+Everything is written to `results/`. Useful flags (all scripts): `--viz off|live|save|both`, `--runs`, `--seed`,
+`--pop`, `--gens`, `--lambda-op`, `--uncapacitated`. Run `python -m scripts.run_synthetic --help` to see them.
 
-```text
-Route flows: [60. 20.]
-Unserved by OD: [20.]
-Travel time: 900.0
-Unserved penalty: 2000.0
-Total objective: 2900.0
-```
+`--viz live` opens a window that is redrawn after every generation (needs a normal desktop Python, not a notebook
+or a server). `--viz save` writes `results/<name>/frames/frame_XXXX.png` and `results/<name>/ga.gif`.
 
-The example has 100 passengers and two predefined routes with travel times of
-10 and 15 minutes. Both lines are enabled (`x=[1, 1]`), frequencies are `[3, 1]`
-departures per hour, vehicle capacity is 20, and the planning horizon is one
-hour. The routes carry 60 and 20 passengers; 20 remain unserved. With a penalty
-of 100 per unserved passenger, the total objective is `900 + 2000 = 2900`.
-
-To change the example, edit `example_instance()` for network, demand, line,
-and route data, and `main()` for activation, frequencies, and penalty in
-[scripts/run_assignment.py](../scripts/run_assignment.py).
-The script currently takes no command-line arguments.
-
-This script solves one lower-level passenger-assignment problem. The GA and
-operator budget/fleet checks are not part of this example. See
-[passenger_assignment.md](passenger_assignment.md) for the mathematical model
-and integration notes.
-
-## 3. Run tests
-
-Run the implemented passenger-assignment tests:
+## 3. Run the tests
 
 ```sh
-python -m pytest tests/test_assignment_penalty.py -q
+python -m pytest -q          # 71 tests, about 20 seconds
 ```
 
-At the time of writing, this file contains 15 test cases, all passing in the
-validated environment. For individual test names and outcomes, use:
+## 4. Where to read next
 
-```sh
-python -m pytest tests/test_assignment_penalty.py -v
-```
-
-Run one test:
-
-```sh
-python -m pytest tests/test_assignment_penalty.py::test_capacity_shortage_is_penalized -v
-```
-
-Run the full suite and display reasons for skipped tests:
-
-```sh
-python -m pytest -q -rs
-```
-
-The last full-suite verification reported `31 passed, 17 skipped`. Existing
-placeholder tests use `pytest.skip()`; skipped tests do not validate the
-corresponding functionality. Counts will change as implementation progresses.
+| You want to know | Read |
+|---|---|
+| What the passengers' LP does | [passenger_assignment.md](passenger_assignment.md) |
+| How the line plan is searched (GA, exact, tie-breaking) | [line_planning.md](line_planning.md) |
+| Where the data comes from and what each experiment shows | [data_and_experiments.md](data_and_experiments.md) |
+| What was changed in the code you wrote | [../CHANGES.md](../CHANGES.md) |

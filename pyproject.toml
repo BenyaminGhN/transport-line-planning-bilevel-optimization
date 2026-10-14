@@ -2,7 +2,7 @@
 name = "ptlp"
 version = "0.1.0"
 requires-python = ">=3.10"
-dependencies = ["numpy", "scipy", "pandas", "networkx", "matplotlib", "imageio", "pytest"]
+dependencies = ["numpy", "scipy", "pandas", "networkx", "matplotlib", "pillow", "pytest"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
