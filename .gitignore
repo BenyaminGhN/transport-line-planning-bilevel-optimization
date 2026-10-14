@@ -259,3 +259,6 @@ demo/
 .venv-codex/
 .uv-cache/
 .pytest-tmp*/
+
+# data
+results/
