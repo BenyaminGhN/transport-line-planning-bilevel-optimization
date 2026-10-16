@@ -69,7 +69,8 @@ def sweep(instance_name: str, parameter: str, values: list[float], method: str =
         rows.append({"parameter": parameter, "value": value, "plan": "".join(map(str, best.x)),
                      "lines_on": int(best.x.sum()), "objective": best.objective, "c_op": best.c_op,
                      "ride_time": best.travel_time, "served_fraction": best.served_fraction,
-                     "gini": best.gini, "p95": best.p95})
+                     "gini": best.gini, "p95": best.p95, "c_pass": best.c_pass,"unserved": best.unserved,
+                     "c_op_norm": best.c_op_norm,"c_pass_norm": best.c_pass_norm})
     return pd.DataFrame(rows)
 
 
