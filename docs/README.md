@@ -81,4 +81,3 @@ python -m pytest -q          # 71 tests, about 20 seconds
 | What the passengers' LP does | [passenger_assignment.md](passenger_assignment.md) |
 | How the line plan is searched (GA, exact, tie-breaking) | [line_planning.md](line_planning.md) |
 | Where the data comes from and what each experiment shows | [data_and_experiments.md](data_and_experiments.md) |
-| What was changed in the code you wrote | [../CHANGES.md](../CHANGES.md) |
