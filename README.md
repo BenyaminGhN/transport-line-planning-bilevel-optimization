@@ -10,4 +10,4 @@ authority's problem; exhaustive enumeration gives the exact benchmark.
     GeneticAlgorithm -> on_generation(record) -> LiveDashboard (live window / PNG frames / GIF)
 
 Install: `pip install -e .`  Quick start: see [docs/README.md](docs/README.md).
-What was changed in the code you wrote: [CHANGES.md](CHANGES.md).
+
